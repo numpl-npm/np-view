@@ -1,13 +1,10 @@
 function v_show( target_id, v ) {
   console.log(target_id);
+  if (! document.getElementById(target_id)) {return null};
 
   const cell_form = "([.0?1-9]|\\[[\\w ().?#!_+-]*(,[\\w ().?#!_+-]*)?\\])";
   let q_arr = v.q.match(new RegExp(cell_form, "g"));
-  console.log(q_arr.length); // console.log(q_arr);
-
-  let q_str = q_arr.map(c => c.match(/^[1-9]$/) ? c : ".").join("");
-  console.log(q_str);
-  console.log(q_str.replace(/(.........)/g, "$1/"));
+  if (! q_arr) {return null};
 
   let main_div = document.createElement("div");
   main_div.align = "left";
@@ -80,20 +77,25 @@ function v_show( target_id, v ) {
   let tags = document.querySelectorAll("div#" + target_id + " table.board td");
   tags.forEach((tag)=>{tag.style.padding = "0px";})
 
-  let a_cap = v.c;
-  a_cap = a_cap.replace(/<(fst|snd|com)>/g, "<span class=\"$1$2\">");
-  a_cap = a_cap.replace(/<\/(fst|snd|com)>/g, "</span>");
-  cap_div.innerHTML = a_cap;
+  if (v.c) {
+    let a_cap = v.c;
+    a_cap = a_cap.replace(/<(fst|snd|com)>/g, "<span class=\"$1$2\">");
+    a_cap = a_cap.replace(/<\/(fst|snd|com)>/g, "</span>");
+    cap_div.innerHTML = a_cap;
+  };
 
-  Object.keys(v.bg).map(cls => {
-    to_ixs(v.bg[cls]).map(ix => {
-      let sel = "#" + target_id;
-      sel += " table.board tr:nth-child(" + ix[0] + ") td:nth-child(" + ix[1] + ")"
-      tag = document.querySelector(sel);
-      tag.classList.add("bg_" + cls);
+  if (v.bg) {
+    Object.keys(v.bg).map(cls => {
+      to_ixs(v.bg[cls]).map(ix => {
+        let sel = "#" + target_id;
+        sel += " table.board tr:nth-child(" + ix[0] + ") td:nth-child(" + ix[1] + ")"
+        tag = document.querySelector(sel);
+        tag.classList.add("bg_" + cls);
+      });
     });
-  });
+  };
 
+  return true;
 };
 
 function to_ixs (rc_str) {
@@ -109,3 +111,12 @@ function to_ixs (rc_str) {
   return ixs;
 }
 
+function q_str (q, sep = "") {
+  if (! q) {return null};
+
+  const cell_form = "([.0?1-9]|\\[[\\w ().?#!_+-]*(,[\\w ().?#!_+-]*)?\\])";
+  let q_arr = q.match(new RegExp(cell_form, "g"));
+  let q_str = q_arr.map(c => c.match(/^[1-9]$/) ? c : ".").join("");
+
+  return q_str.replace(/(.........)/g, "$1" + sep);
+};
