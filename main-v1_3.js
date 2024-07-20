@@ -101,13 +101,15 @@ function v_show( target_id, v ) {
 function to_ixs (rc_str) {
   let ixs = [];
   let rc_arr = rc_str.match(new RegExp("(r\\d+c\\d+)", "gi"));
-  rc_arr.map(rc => {
-    let r_str = rc.match(new RegExp("r\\d+", "i")).join("");
-    let r_arr = r_str.match(new RegExp("\\d", "g"));
-    let c_str = rc.match(new RegExp("c\\d+", "i")).join("");
-    let c_arr = c_str.match(new RegExp("\\d", "g"));
-    r_arr.map(r => c_arr.map(c => ixs.push([r, c])));
-  });
+  if (rc_arr) {
+    rc_arr.map(rc => {
+      let r_str = rc.match(new RegExp("r\\d+", "i")).join("");
+      let r_arr = r_str.match(new RegExp("\\d", "g"));
+      let c_str = rc.match(new RegExp("c\\d+", "i")).join("");
+      let c_arr = c_str.match(new RegExp("\\d", "g"));
+      r_arr.map(r => c_arr.map(c => ixs.push([r, c])));
+    });
+  };
   return ixs;
 }
 
