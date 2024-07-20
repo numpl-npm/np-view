@@ -79,8 +79,8 @@ function v_show( target_id, v ) {
 
   if (v.c) {
     let a_cap = v.c;
-    a_cap = a_cap.replace(/<(fst|snd|com)>/g, "<span class=\"$1$2\">");
-    a_cap = a_cap.replace(/<\/(fst|snd|com)>/g, "</span>");
+    a_cap = a_cap.replace(/<(fst|snd|com|bg_.*?)>/g, "<span class=\"$1\">");
+    a_cap = a_cap.replace(/<\/(fst|snd|com|bg_.*?)?>/g, "</span>");
     cap_div.innerHTML = a_cap;
   };
 
