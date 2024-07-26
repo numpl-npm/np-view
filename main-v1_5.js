@@ -18,7 +18,10 @@ function v_show( target_id, v ) {
   table.appendChild(caption);
   table.appendChild(board);
   main_div.appendChild(table);
-  let target = document.getElementById(target_id);
+
+  let targets = document.querySelectorAll("#" + target_id);
+  let target = targets[targets.length - 1];
+
   target.appendChild(main_div);
 
   for (let i = 0; i < 9; i++) {
@@ -74,7 +77,7 @@ function v_show( target_id, v ) {
     board.appendChild(tr);
   }
 
-  let tags = document.querySelectorAll("div#" + target_id + " table.board td");
+  let tags = target.querySelectorAll("table.board td");
   tags.forEach((tag)=>{tag.style.padding = "0px";})
 
   if (v.c) {
@@ -87,9 +90,8 @@ function v_show( target_id, v ) {
   if (v.bg) {
     Object.keys(v.bg).map(cls => {
       to_ixs(v.bg[cls]).map(ix => {
-        let sel = "#" + target_id;
-        sel += " table.board tr:nth-child(" + ix[0] + ") td:nth-child(" + ix[1] + ")"
-        tag = document.querySelector(sel);
+        let sel = "table.board tr:nth-child(" + ix[0] + ") td:nth-child(" + ix[1] + ")"
+        tag = target.querySelector(sel);
         tag.classList.add("bg_" + cls);
       });
     });
