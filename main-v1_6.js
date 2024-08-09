@@ -1,9 +1,9 @@
-function v_show( target_id, v ) {
+function table_show( target_id, q ) {
   console.log(target_id);
   if (! document.getElementById(target_id)) {return null};
 
   const cell_form = "([.0?1-9]|\\[[\\w ().?#!_+-]*(,[\\w ().?#!_+-]*)?\\])";
-  let q_arr = v.q.match(new RegExp(cell_form, "g"));
+  let q_arr = q.match(new RegExp(cell_form, "g"));
   if (! q_arr) {return null};
 
   let main_div = document.createElement("div");
@@ -19,9 +19,7 @@ function v_show( target_id, v ) {
   table.appendChild(board);
   main_div.appendChild(table);
 
-  let targets = document.querySelectorAll("#" + target_id);
-  let target = targets[targets.length - 1];
-
+  let target = get_target( target_id );
   target.appendChild(main_div);
 
   for (let i = 0; i < 9; i++) {
@@ -80,24 +78,52 @@ function v_show( target_id, v ) {
   let tags = target.querySelectorAll("table.board td");
   tags.forEach((tag)=>{tag.style.padding = "0px";})
 
-  if (v.c) {
-    let a_cap = v.c;
-    a_cap = a_cap.replace(/<(fst|snd|com|bg_.*?)>/g, "<span class=\"$1\">");
-    a_cap = a_cap.replace(/<\/(fst|snd|com|bg_.*?)?>/g, "</span>");
-    cap_div.innerHTML = a_cap;
-  };
-
-  if (v.bg) {
-    Object.keys(v.bg).map(cls => {
-      to_ixs(v.bg[cls]).map(ix => {
-        let sel = "table.board tr:nth-child(" + ix[0] + ") td:nth-child(" + ix[1] + ")"
-        tag = target.querySelector(sel);
-        tag.classList.add("bg_" + cls);
-      });
-    });
-  };
-
   return true;
+};
+
+function get_target(target_id) {
+  let targets = document.querySelectorAll("#" + target_id);
+  return targets[targets.length - 1];
+};
+
+function bg_show(target_id, bg, clr=false) {
+  if (! bg) {return;};
+  let target = get_target(target_id);
+  Object.keys(bg).map(cls => {
+    to_ixs(bg[cls]).map(ix => {
+      let sel = "table.board tr:nth-child(" + ix[0] + ") td:nth-child(" + ix[1] + ")"
+      tag = target.querySelector(sel);
+      if (clr) {
+        tag.classList.remove("bg_" + cls);
+      } else {
+        tag.classList.add("bg_" + cls);
+      };
+    });
+  });
+};
+
+function cap_show(target_id, cap, btn_bg={}, sel="caption div") {
+  // default if undefined is passed
+  if (! cap) {return;};
+
+  fx = (btn, k) => {
+    if (btn.classList.contains('active')) {
+      bg_show(target_id, btn_bg[k], true);
+    } else {
+      bg_show(target_id, btn_bg[k]);
+    };
+    btn.classList.toggle('active')
+  };
+  cap = cap.replaceAll(
+    /<(btn_\w+)\s+(\w+)>(.*?)<\/>/g,
+    '<button class="btn bg_$2" onClick="javascript:fx(this,\'$1\')">$3</button>'
+  );
+  cap = cap.replace(/<(fst|snd|com|bg_.*?)>/g, "<span class=\"$1\">");
+  cap = cap.replace(/<\/(fst|snd|com|bg_.*?)?>/g, "</span>");
+
+  let target = get_target(target_id);
+  let cap_div = target.querySelector(sel);
+  cap_div.innerHTML = cap;
 };
 
 function to_ixs (rc_str) {
