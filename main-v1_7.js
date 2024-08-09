@@ -1,4 +1,4 @@
-/* v1_6 */
+/* v1_7 */
 
 function table_show( target_id, q ) {
   console.log(target_id);
