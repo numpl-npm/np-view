@@ -1,3 +1,4 @@
+/* v1_2 */
 
 .board {
     border-collapse:collapse;
@@ -75,9 +76,9 @@
 }
 .btn {
   position: relative;
-  padding: 0.5em 1em;
+  padding: 0.2em 0.5em;
   border: 0;
-  border-radius: 0.5em;
+  border-radius: 0.2em;
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.5);
   cursor: pointer;
 }
