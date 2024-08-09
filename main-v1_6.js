@@ -1,3 +1,5 @@
+/* v1_6 */
+
 function table_show( target_id, q ) {
   console.log(target_id);
   if (! document.getElementById(target_id)) {return null};
@@ -86,37 +88,40 @@ function get_target(target_id) {
   return targets[targets.length - 1];
 };
 
-function bg_show(target_id, bg, clr=false) {
+function bg_show(target_id, bg, show=true) {
   if (! bg) {return;};
   let target = get_target(target_id);
   Object.keys(bg).map(cls => {
     to_ixs(bg[cls]).map(ix => {
       let sel = "table.board tr:nth-child(" + ix[0] + ") td:nth-child(" + ix[1] + ")"
       tag = target.querySelector(sel);
-      if (clr) {
-        tag.classList.remove("bg_" + cls);
-      } else {
+      if (show) {
         tag.classList.add("bg_" + cls);
+      } else {
+        tag.classList.remove("bg_" + cls);
       };
     });
   });
 };
 
-function cap_show(target_id, cap, btn_bg={}, sel="caption div") {
-  // default if undefined is passed
+function cap_show(target_id, btn_bg={}, cap, sel="caption div") {
+  /* default if undefined is passed */
   if (! cap) {return;};
 
-  fx = (btn, k) => {
-    if (btn.classList.contains('active')) {
-      bg_show(target_id, btn_bg[k], true);
-    } else {
-      bg_show(target_id, btn_bg[k]);
+  fx = (btn, k, ev) => {
+    if (ev == 'click') {
+      btn.classList.toggle('active')
     };
-    btn.classList.toggle('active')
+    show = btn.classList.contains('active') || ev == 'enter'; 
+    bg_show(target_id, btn_bg[k], show);
   };
   cap = cap.replaceAll(
     /<(btn_\w+)\s+(\w+)>(.*?)<\/>/g,
-    '<button class="btn bg_$2" onClick="javascript:fx(this,\'$1\')">$3</button>'
+    `<button class="btn bg_$2"
+       onmouseover="javascript:fx(this,\'$1\',\'enter\')"
+       onmouseout="javascript:fx(this,\'$1\',\'leave\')"
+       onClick="javascript:fx(this,\'$1\',\'click\')"
+     >$3</button>`
   );
   cap = cap.replace(/<(fst|snd|com|bg_.*?)>/g, "<span class=\"$1\">");
   cap = cap.replace(/<\/(fst|snd|com|bg_.*?)?>/g, "</span>");
