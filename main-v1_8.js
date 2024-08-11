@@ -1,12 +1,8 @@
-/* v1_7 */
+/* v1_8 */
 
-function table_show( target_id, q ) {
+function table_show( target_id) {
   console.log(target_id);
   if (! document.getElementById(target_id)) {return null};
-
-  const cell_form = "([.0?1-9]|\\[[\\w ().?#!_+-]*(,[\\w ().?#!_+-]*)?\\])";
-  let q_arr = q.match(new RegExp(cell_form, "g"));
-  if (! q_arr) {return null};
 
   let main_div = document.createElement("div");
   main_div.align = "left";
@@ -29,56 +25,9 @@ function table_show( target_id, q ) {
     for (let j = 0; j < 9; j++) {
       let td = document.createElement("td");
       tr.appendChild(td);
-      let p = 9 * i + j;
-      if (q_arr[p] == ".") {
-        td.textContent = null;
-      } else if (q_arr[p].length == 1) {
-        td.textContent = q_arr[p];
-      } else {
-        let span = document.createElement("span");
-        let marks = q_arr[p].slice(1, -1).split(",");
-        marks = marks.map(txt => {
-          txt = txt.replaceAll(" ", "\u00A0");
-          return txt;
-        });
-        if (marks.length == 1) {
-          let fst = document.createElement("span");
-          if (marks[0][0] == "!") {
-            marks[0] = marks[0].slice(1);
-            fst.classList.add("com");
-          }
-          fst.classList.add("left");
-          fst.textContent = marks[0];
-          td.appendChild(fst);
-        } else {
-          let fst = document.createElement("span");
-          if (marks[0][0] == "#") {
-            marks[0] = marks[0].slice(1);
-          } else {
-            fst.classList.add("fst");
-          };
-          fst.classList.add("left");
-          fst.textContent = marks[0];
-          td.appendChild(fst);
-          let br = document.createElement("br");
-          td.appendChild(br);
-          let snd = document.createElement("span");
-          if (marks[1][0] == "#") {
-            marks[1] = marks[1].slice(1);
-          } else {
-            snd.classList.add("snd");
-          };
-          snd.classList.add("left");
-          snd.textContent = marks[1];
-          td.appendChild(snd);
-        }
-      }
     }
     board.appendChild(tr);
   }
-
-  let tags = target.querySelectorAll("table.board td");
-  tags.forEach((tag)=>{tag.style.padding = "0px";})
 
   return true;
 };
@@ -88,18 +37,99 @@ function get_target(target_id) {
   return targets[targets.length - 1];
 };
 
+function get_cell_form () {
+  return "(?:[.0?1-9]|\\[[\\w ().?#!_+-]*(?:,[\\w ().?#!_+-]*)?\\])";
+};
+
+function add_candi (td, q) {
+  if (! q) {return;};
+  rm_candi(td); 
+
+  let span = document.createElement("span");
+  let marks = q.slice(1, -1).split(",");
+  marks = marks.map(txt => {
+    txt = txt.replaceAll(" ", "\u00A0");
+    return txt;
+  });
+  if (marks.length == 1) {
+    let fst = document.createElement("span");
+    if (marks[0][0] == "!") {
+      marks[0] = marks[0].slice(1);
+      fst.classList.add("com");
+    }
+    fst.classList.add("left");
+    fst.textContent = marks[0];
+    td.appendChild(fst);
+  } else {
+    let fst = document.createElement("span");
+    if (marks[0][0] == "#") {
+      marks[0] = marks[0].slice(1);
+    } else {
+      fst.classList.add("fst");
+    };
+    fst.classList.add("left");
+    fst.textContent = marks[0];
+    td.appendChild(fst);
+    let br = document.createElement("br");
+    td.appendChild(br);
+    let snd = document.createElement("span");
+    if (marks[1][0] == "#") {
+      marks[1] = marks[1].slice(1);
+    } else {
+      snd.classList.add("snd");
+    };
+    snd.classList.add("left");
+    snd.textContent = marks[1];
+    td.appendChild(snd);
+  }
+};
+
+function rm_candi (td) {
+  while (td.firstChild) {
+    td.removeChild(td.lastChild);
+  }
+};
+
+function q_show(target_id, q) {
+  if (! q) {return;};
+
+  let q_arr = q.match(new RegExp(get_cell_form(), "g"));
+
+  let target = get_target(target_id);
+  let tds = target.querySelectorAll("table.board td");
+
+  for (let i = 0; i < 9; i++) {
+    for (let j = 0; j < 9; j++) {
+      let p = 9 * i + j;
+      let td = tds[p];
+      if (q_arr[p] == ".") {
+        td.textContent = null;
+      } else if (q_arr[p].length == 1) {
+        td.textContent = q_arr[p];
+      } else {
+        add_candi(td, q_arr[p]);
+      }
+    }
+  }
+  tds.forEach(td => td.style.padding = "0px");
+};
+
 function bg_show(target_id, bg, show=true) {
   if (! bg) {return;};
   let target = get_target(target_id);
   Object.keys(bg).map(cls => {
     to_ixs(bg[cls]).map(ix => {
-      let sel = "table.board tr:nth-child(" + ix[0] + ") td:nth-child(" + ix[1] + ")"
-      tag = target.querySelector(sel);
+      let sel = "table.board tr:nth-child(" + ix[1] + ") td:nth-child(" + ix[2] + ")"
+      td = target.querySelector(sel);
       if (show) {
-        tag.classList.add("bg_" + cls);
+        td.classList.add("bg_" + cls);
+        console.log(ix);
+        add_candi(td, ix[0]);
       } else {
-        tag.classList.remove("bg_" + cls);
+        td.classList.remove("bg_" + cls);
+        rm_candi(td);
       };
+      console.log(td.outerHTML);
     });
   });
 };
@@ -133,14 +163,16 @@ function cap_show(target_id, btn_bg={}, cap, sel="caption div") {
 
 function to_ixs (rc_str) {
   let ixs = [];
-  let rc_arr = rc_str.match(new RegExp("(r\\d+c\\d+)", "gi"));
+  let ixs_form = get_cell_form() + "?r\\d+c\\d+";
+  let rc_arr = rc_str.match(new RegExp(ixs_form, "gi"));
   if (rc_arr) {
     rc_arr.map(rc => {
+      let q = rc.match(new RegExp(get_cell_form(), "i")).join("");
       let r_str = rc.match(new RegExp("r\\d+", "i")).join("");
       let r_arr = r_str.match(new RegExp("\\d", "g"));
       let c_str = rc.match(new RegExp("c\\d+", "i")).join("");
       let c_arr = c_str.match(new RegExp("\\d", "g"));
-      r_arr.map(r => c_arr.map(c => ixs.push([r, c])));
+      r_arr.map(r => c_arr.map(c => ixs.push([q, r, c])));
     });
   };
   return ixs;
