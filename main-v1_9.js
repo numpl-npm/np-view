@@ -1,4 +1,4 @@
-/* v1_8 */
+/* v1_9 */
 
 function table_show( target_id) {
   console.log(target_id);
@@ -35,6 +35,10 @@ function table_show( target_id) {
 function get_target(target_id) {
   let targets = document.querySelectorAll("#" + target_id);
   return targets[targets.length - 1];
+};
+
+function get_cap_div (target_id, sel="caption div") {
+  return get_target(target_id).querySelector(sel);
 };
 
 function get_cell_form () {
@@ -115,6 +119,7 @@ function q_show(target_id, q) {
 };
 
 function bg_show(target_id, bg, show=true) {
+  console.log(bg);
   if (! bg) {return;};
   let target = get_target(target_id);
   Object.keys(bg).map(cls => {
@@ -123,41 +128,44 @@ function bg_show(target_id, bg, show=true) {
       td = target.querySelector(sel);
       if (show) {
         td.classList.add("bg_" + cls);
-        console.log(ix);
         add_candi(td, ix[0]);
       } else {
         td.classList.remove("bg_" + cls);
         rm_candi(td);
       };
-      console.log(td.outerHTML);
     });
   });
 };
 
-function cap_show(target_id, btn_bg={}, cap, sel="caption div") {
+function obj_to_str (obj) {
+  return Object.entries(obj).map(([k, v]) => `'${k}': '${v}'`).join(', ');
+}
+
+function fx (btn, ev) {
+  if (ev == 'click') {
+    btn.classList.toggle('active')
+  };
+  return btn.classList.contains('active') || ev == 'enter';
+};
+
+function cap_show(target_id, btn_bg={}, cap, cap_div=undefined) {
   /* default if undefined is passed */
   if (! cap) {return;};
 
-  fx = (btn, k, ev) => {
-    if (ev == 'click') {
-      btn.classList.toggle('active')
-    };
-    show = btn.classList.contains('active') || ev == 'enter'; 
-    bg_show(target_id, btn_bg[k], show);
-  };
-  cap = cap.replaceAll(
-    /<(btn_\w+)\s+(\w+)>(.*?)<\/>/g,
-    `<button class="btn bg_$2"
-       onmouseover="javascript:fx(this,\'$1\',\'enter\')"
-       onmouseout="javascript:fx(this,\'$1\',\'leave\')"
-       onClick="javascript:fx(this,\'$1\',\'click\')"
-     >$3</button>`
-  );
+  Object.entries(btn_bg).map(([k, v]) => {
+    cap = cap.replaceAll(
+      new RegExp(`<${k}\\s+(\\w+)>(.*?)<\/>`, "g"),
+      `<button class="btn bg_$1"
+         onmouseover="javascript:bg_show(\'${target_id}\', {${obj_to_str(v)}}, fx(this,\'enter\'));"
+         onmouseout="javascript:bg_show(\'${target_id}\', {${obj_to_str(v)}}, fx(this,\'leave\'));"
+         onClick="javascript:bg_show(\'${target_id}\', {${obj_to_str(v)}}, fx(this,\'click\'));"
+       >$2</button>`
+    );
+  });
   cap = cap.replace(/<(fst|snd|com|bg_.*?)>/g, "<span class=\"$1\">");
   cap = cap.replace(/<\/(fst|snd|com|bg_.*?)?>/g, "</span>");
 
-  let target = get_target(target_id);
-  let cap_div = target.querySelector(sel);
+  if (cap_div === undefined) {cap_div = get_cap_div(target_id);};
   cap_div.innerHTML = cap;
 };
 
