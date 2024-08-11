@@ -119,7 +119,6 @@ function q_show(target_id, q) {
 };
 
 function bg_show(target_id, bg, show=true) {
-  console.log(bg);
   if (! bg) {return;};
   let target = get_target(target_id);
   Object.keys(bg).map(cls => {
