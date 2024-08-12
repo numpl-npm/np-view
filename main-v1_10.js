@@ -1,4 +1,4 @@
-/* v1_9 */
+/* v1_10 */
 
 function table_show( target_id) {
   console.log(target_id);
@@ -107,7 +107,7 @@ function q_show(target_id, q) {
       let p = 9 * i + j;
       let td = tds[p];
       if (q_arr[p] == ".") {
-        td.textContent = null;
+        ;
       } else if (q_arr[p].length == 1) {
         td.textContent = q_arr[p];
       } else {
@@ -125,19 +125,24 @@ function bg_show(target_id, bg, show=true) {
     to_ixs(bg[cls]).map(ix => {
       let sel = "table.board tr:nth-child(" + ix[1] + ") td:nth-child(" + ix[2] + ")"
       td = target.querySelector(sel);
+      r_cls = cls[0] == "." ? cls.slice(1) : "bg_" + cls ;
       if (show) {
-        td.classList.add("bg_" + cls);
+        td.classList.add(r_cls);
         add_candi(td, ix[0]);
       } else {
-        td.classList.remove("bg_" + cls);
-        rm_candi(td);
+        td.classList.remove(r_cls);
+        if (ix[0]) {rm_candi(td);};
       };
     });
   });
 };
 
 function obj_to_str (obj) {
-  return Object.entries(obj).map(([k, v]) => `'${k}': '${v}'`).join(', ');
+  return [
+    "{",
+    Object.entries(obj).map(([k, v]) => `'${k}': '${v}'`).join(', '),
+    "}"
+  ].join("");
 }
 
 function fx (btn, ev) {
@@ -155,9 +160,9 @@ function cap_show(target_id, btn_bg={}, cap, cap_div=undefined) {
     cap = cap.replaceAll(
       new RegExp(`<${k}\\s+(\\w+)>(.*?)<\/>`, "g"),
       `<button class="btn bg_$1"
-         onmouseover="javascript:bg_show(\'${target_id}\', {${obj_to_str(v)}}, fx(this,\'enter\'));"
-         onmouseout="javascript:bg_show(\'${target_id}\', {${obj_to_str(v)}}, fx(this,\'leave\'));"
-         onClick="javascript:bg_show(\'${target_id}\', {${obj_to_str(v)}}, fx(this,\'click\'));"
+         onmouseover="javascript:bg_show(\'${target_id}\', ${obj_to_str(v)}, fx(this,\'enter\'));"
+         onmouseout="javascript:bg_show(\'${target_id}\', ${obj_to_str(v)}, fx(this,\'leave\'));"
+         onClick="javascript:bg_show(\'${target_id}\', ${obj_to_str(v)}, fx(this,\'click\'));"
        >$2</button>`
     );
   });
@@ -174,7 +179,7 @@ function to_ixs (rc_str) {
   let rc_arr = rc_str.match(new RegExp(ixs_form, "gi"));
   if (rc_arr) {
     rc_arr.map(rc => {
-      let q = rc.match(new RegExp(get_cell_form(), "i")).join("");
+      let q = rc.match(new RegExp(get_cell_form()+"?", "i")).join("");
       let r_str = rc.match(new RegExp("r\\d+", "i")).join("");
       let r_arr = r_str.match(new RegExp("\\d", "g"));
       let c_str = rc.match(new RegExp("c\\d+", "i")).join("");
