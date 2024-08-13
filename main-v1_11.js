@@ -1,4 +1,4 @@
-/* v1_10 */
+/* v1_11 */
 
 function table_show( target_id) {
   console.log(target_id);
@@ -118,8 +118,18 @@ function q_show(target_id, q) {
   tds.forEach(td => td.style.padding = "0px");
 };
 
+let last_target_id = '';
+let last_bg = {};
+
 function bg_show(target_id, bg, show=true) {
-  if (! bg) {return;};
+  if (! target_id || ! bg) {return;};
+
+  if (show) {
+    bg_show(last_target_id, last_bg, false);
+    last_target_id = target_id;
+    last_bg = structuredClone(bg);
+  };
+
   let target = get_target(target_id);
   Object.keys(bg).map(cls => {
     to_ixs(bg[cls]).map(ix => {
@@ -145,9 +155,15 @@ function obj_to_str (obj) {
   ].join("");
 }
 
-function fx (btn, ev) {
+let last_btn = undefined;
+
+function btn_toggle (btn, ev) {
   if (ev == 'click') {
-    btn.classList.toggle('active')
+    if (last_btn && last_btn != btn) {
+      last_btn.classList.toggle('active');
+    };
+    btn.classList.toggle('active');
+    last_btn = btn;
   };
   return btn.classList.contains('active') || ev == 'enter';
 };
@@ -160,9 +176,9 @@ function cap_show(target_id, btn_bg={}, cap, cap_div=undefined) {
     cap = cap.replaceAll(
       new RegExp(`<${k}\\s+(\\w+)>(.*?)<\/>`, "g"),
       `<button class="btn bg_$1"
-         onmouseover="javascript:bg_show(\'${target_id}\', ${obj_to_str(v)}, fx(this,\'enter\'));"
-         onmouseout="javascript:bg_show(\'${target_id}\', ${obj_to_str(v)}, fx(this,\'leave\'));"
-         onClick="javascript:bg_show(\'${target_id}\', ${obj_to_str(v)}, fx(this,\'click\'));"
+         onmouseover="javascript:bg_show(\'${target_id}\', ${obj_to_str(v)}, btn_toggle(this,\'enter\'));"
+         onmouseout="javascript:bg_show(\'${target_id}\', ${obj_to_str(v)}, btn_toggle(this,\'leave\'));"
+         onClick="javascript:bg_show(\'${target_id}\', ${obj_to_str(v)}, btn_toggle(this,\'click\'));"
        >$2</button>`
     );
   });
