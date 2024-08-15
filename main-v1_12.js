@@ -1,8 +1,8 @@
-/* v1_11 */
+/* v1_12 */
 
-function table_show( target_id) {
-  console.log(target_id);
-  if (! document.getElementById(target_id)) {return null};
+function table_show( target_sel) {
+  console.log(target_sel);
+  if (! get_target(target_sel)) {return null};
 
   let main_div = document.createElement("div");
   main_div.align = "left";
@@ -17,7 +17,7 @@ function table_show( target_id) {
   table.appendChild(board);
   main_div.appendChild(table);
 
-  let target = get_target( target_id );
+  let target = get_target(target_sel);
   target.appendChild(main_div);
 
   for (let i = 0; i < 9; i++) {
@@ -32,13 +32,12 @@ function table_show( target_id) {
   return true;
 };
 
-function get_target(target_id) {
-  let targets = document.querySelectorAll("#" + target_id);
-  return targets[targets.length - 1];
+function get_target(target_sel) {
+  return document.querySelector(target_sel);
 };
 
-function get_cap_div (target_id, sel="caption div") {
-  return get_target(target_id).querySelector(sel);
+function get_cap_div (target_sel, sel="caption div") {
+  return get_target(target_sel).querySelector(sel);
 };
 
 function get_cell_form () {
@@ -94,12 +93,12 @@ function rm_candi (td) {
   }
 };
 
-function q_show(target_id, q) {
+function q_show(target_sel, q) {
   if (! q) {return;};
 
   let q_arr = q.match(new RegExp(get_cell_form(), "g"));
 
-  let target = get_target(target_id);
+  let target = get_target(target_sel);
   let tds = target.querySelectorAll("table.board td");
 
   for (let i = 0; i < 9; i++) {
@@ -118,19 +117,19 @@ function q_show(target_id, q) {
   tds.forEach(td => td.style.padding = "0px");
 };
 
-let last_target_id = '';
+let last_target_sel = '';
 let last_bg = {};
 
-function bg_show(target_id, bg, show=true) {
-  if (! target_id || ! bg) {return;};
+function bg_show(target_sel, bg, show=true) {
+  if (! target_sel || ! bg) {return;};
 
   if (show) {
-    bg_show(last_target_id, last_bg, false);
-    last_target_id = target_id;
+    bg_show(last_target_sel, last_bg, false);
+    last_target_sel = target_sel;
     last_bg = structuredClone(bg);
   };
 
-  let target = get_target(target_id);
+  let target = get_target(target_sel);
   Object.keys(bg).map(cls => {
     to_ixs(bg[cls]).map(ix => {
       let sel = "table.board tr:nth-child(" + ix[1] + ") td:nth-child(" + ix[2] + ")"
@@ -168,7 +167,7 @@ function btn_toggle (btn, ev) {
   return btn.classList.contains('active') || ev == 'enter';
 };
 
-function cap_show(target_id, btn_bg={}, cap, cap_div=undefined) {
+function cap_show(target_sel, btn_bg={}, cap, cap_div=undefined) {
   /* default if undefined is passed */
   if (! cap) {return;};
 
@@ -176,16 +175,16 @@ function cap_show(target_id, btn_bg={}, cap, cap_div=undefined) {
     cap = cap.replaceAll(
       new RegExp(`<${k}\\s+(\\w+)>(.*?)<\/>`, "g"),
       `<button class="btn bg_$1"
-         onmouseover="javascript:bg_show(\'${target_id}\', ${obj_to_str(v)}, btn_toggle(this,\'enter\'));"
-         onmouseout="javascript:bg_show(\'${target_id}\', ${obj_to_str(v)}, btn_toggle(this,\'leave\'));"
-         onClick="javascript:bg_show(\'${target_id}\', ${obj_to_str(v)}, btn_toggle(this,\'click\'));"
+         onmouseover="javascript:bg_show(\'${target_sel}\', ${obj_to_str(v)}, btn_toggle(this,\'enter\'));"
+         onmouseout="javascript:bg_show(\'${target_sel}\', ${obj_to_str(v)}, btn_toggle(this,\'leave\'));"
+         onClick="javascript:bg_show(\'${target_sel}\', ${obj_to_str(v)}, btn_toggle(this,\'click\'));"
        >$2</button>`
     );
   });
   cap = cap.replace(/<(fst|snd|com|bg_.*?)>/g, "<span class=\"$1\">");
   cap = cap.replace(/<\/(fst|snd|com|bg_.*?)?>/g, "</span>");
 
-  if (cap_div === undefined) {cap_div = get_cap_div(target_id);};
+  if (cap_div === undefined) {cap_div = get_cap_div(target_sel);};
   cap_div.innerHTML = cap;
 };
 
