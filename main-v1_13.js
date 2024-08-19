@@ -1,4 +1,60 @@
-/* v1_12 */
+/* v1_13 */
+
+function add_colrs() {
+  let colrs = [ /* Pale tone */
+    "#F5B090", "#FCD7A1", "#FFF9B1", "#D7E7AF", "#A5D4AD", "#A2D7D4",
+    "#9FD9F6", "#A3BCE2", "#A59ACA", "#CFA7CD", "#F4B4D0", "#F5B2B2",
+  ];
+
+  let css_sh = document.createElement("style"); 
+  css_sh.type = "text/css"; 
+  document.getElementsByTagName("head").item( 0 ).appendChild(css_sh);
+
+  bg_n = (c, n) => `.bg_${n} {background-color: ${c};}`;
+  bg_fst_n = (c, n) => `.bg_fst_${n} {
+    background-image: linear-gradient(to bottom right,
+    ${c} 0%, ${c} 50%, white 50%, white 100%);
+  }`;
+  bg_n_mix = (c, n) => `.bg_${n}_mix {
+    background-image: linear-gradient(to bottom right,
+    ${c} 0%, ${c} 50%, ${colrs[1]} 50%, ${colrs[1]} 100%);
+  }`;
+  bg_snd_n = (c, n) => `.bg_snd_${n} {
+    background-image: linear-gradient(to bottom right,
+    white 0%, white 50%, ${c} 50%, ${c} 100%);
+  }`;
+  bg_mix_n = (c, n) => `.bg_mix_${n} {
+    background-image: linear-gradient(to bottom right,
+    ${c} 0%, ${c} 50%, ${colrs[0]} 50%, ${colrs[0]} 100%);
+  }`;
+  bg_fst = `.bg_fst {
+    background-image: linear-gradient(to bottom right,
+    ${colrs[0]} 0%, ${colrs[0]} 50%, white 50%, white 100%);
+  }`;
+  bg_snd = `.bg_snd {
+    background-image: linear-gradient(to bottom right,
+    white 0%, white 50%, ${colrs[1]} 50%, ${colrs[1]} 100%);
+  }`;
+  bg_com = `.bg_com, .bg_goal {background-color: ${colrs[10]};}`;
+  bg_mix = `.bg_mix {
+    background-image: linear-gradient(to bottom right,
+    ${colrs[0]} 0%, ${colrs[0]} 50%, ${colrs[1]} 50%, ${colrs[1]} 100%);
+  }`;
+  let my_css = document.styleSheets.item(document.styleSheets.length - 1);
+  my_css.insertRule(bg_fst, my_css.cssRules.length);
+  my_css.insertRule(bg_snd, my_css.cssRules.length);
+  my_css.insertRule(bg_com, my_css.cssRules.length);
+  my_css.insertRule(bg_mix, my_css.cssRules.length);
+  colrs.forEach((c, i) => {
+    let n = (i + 1).toString();
+    n = n.replace("10","a").replace("11","b").replace("12","c");
+    my_css.insertRule(bg_n(c, n), my_css.cssRules.length);
+    my_css.insertRule(bg_fst_n(c, n), my_css.cssRules.length);
+    my_css.insertRule(bg_n_mix(c, n), my_css.cssRules.length);
+    my_css.insertRule(bg_snd_n(c, n), my_css.cssRules.length);
+    my_css.insertRule(bg_mix_n(c, n), my_css.cssRules.length);
+  });
+};
 
 function table_show( target_sel) {
   console.log(target_sel);
@@ -158,7 +214,9 @@ let last_btn = undefined;
 
 function btn_toggle (btn, ev) {
   if (ev == 'click') {
-    if (last_btn && last_btn != btn) {
+    if (last_btn && last_btn != btn &&
+        last_btn.classList.contains('active')
+    ) {
       last_btn.classList.toggle('active');
     };
     btn.classList.toggle('active');
