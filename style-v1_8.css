@@ -1,4 +1,4 @@
-/* v1_7 */
+/* v1_8 */
 
 .board {
     border-collapse:collapse;
@@ -44,21 +44,6 @@
 .hide {
     visibility:hidden;
 }
-
-/* Pale tone */
-.bg_1 {background-color: #F5B090;} /* fst */
-.bg_2 {background-color: #FCD7A1;} /* snd */
-.bg_3 {background-color: #FFF9B1;}
-.bg_4 {background-color: #D7E7AF;}
-.bg_5 {background-color: #A5D4AD;}
-.bg_6 {background-color: #A2D7D4;}
-.bg_7 {background-color: #9FD9F6;}
-.bg_8 {background-color: #A3BCE2;}
-.bg_9 {background-color: #A59ACA;}
-.bg_a {background-color: #CFA7CD;}
-.bg_b {background-color: #F4B4D0;} /* com */
-.bg_c {background-color: #F5B2B2;}
-
 .fst {
     color: red;
 }
@@ -68,38 +53,12 @@
 .com {
     color: hotpink;
 }
-.bg_goal {
-    background-color: #F4B4D0;
-}
-.bg_mix {
-    background-image: linear-gradient(to bottom right,
-        #F5B090 0%, #F5B090 50%, #FCD7A1 50%, #FCD7A1 100%);
-}
-.bg_fst {
-    background-image: linear-gradient(to bottom right,
-        #F5B090 0%, #F5B090 50%, white 50%, white 100%);
-}
-.bg_snd {
-    background-image: linear-gradient(to bottom right,
-        white 0%, white 50%, #FCD7A1 50%, #FCD7A1 100%);
-}
-.bg_com {
-    background-color: #F4B4D0;
-}
-.bg_fst_4 {
-    background-image: linear-gradient(to bottom right,
-        #D7E7AF 0%, #D7E7AF 50%, white 50%, white 100%);
-}
-.bg_snd_4 {
-    background-image: linear-gradient(to bottom right,
-        white 0%, white 50%, #D7E7AF 50%, #D7E7AF 100%);
-}
 .left {
     margin-left: -10px;
 }
 .btn {
   position: relative;
-  padding: 0.2em 0.5em;
+  padding: 0.2em 0.4em;
   border: 0;
   border-radius: 0.2em;
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.5);
@@ -113,4 +72,4 @@
 .br { 
     display: block;
     line-height: 15%;
-} 
+}
