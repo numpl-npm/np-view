@@ -1,11 +1,11 @@
-/* v1_13 */
+/* v1_14 */
+
+let colrs = [ /* Pale tone */
+  "#F5B090", "#FCD7A1", "#FFF9B1", "#D7E7AF", "#A5D4AD", "#A2D7D4",
+  "#9FD9F6", "#A3BCE2", "#A59ACA", "#CFA7CD", "#F4B4D0", "#F5B2B2",
+];
 
 function add_colrs() {
-  let colrs = [ /* Pale tone */
-    "#F5B090", "#FCD7A1", "#FFF9B1", "#D7E7AF", "#A5D4AD", "#A2D7D4",
-    "#9FD9F6", "#A3BCE2", "#A59ACA", "#CFA7CD", "#F4B4D0", "#F5B2B2",
-  ];
-
   let css_sh = document.createElement("style"); 
   css_sh.type = "text/css"; 
   document.getElementsByTagName("head").item( 0 ).appendChild(css_sh);
@@ -40,11 +40,21 @@ function add_colrs() {
     background-image: linear-gradient(to bottom right,
     ${colrs[0]} 0%, ${colrs[0]} 50%, ${colrs[1]} 50%, ${colrs[1]} 100%);
   }`;
+  bg_goal_fst = `.bg_com_fst, .bg_goal_fst {
+    background-image: linear-gradient(to bottom right,
+    ${colrs[10]} 0%, ${colrs[10]} 50%, white 50%, white 100%);
+  }`;
+  bg_goal_snd = `.bg_com_snd, .bg_goal_snd {
+    background-image: linear-gradient(to bottom right,
+    white 0%, white 50%, ${colrs[10]} 50%, ${colrs[10]} 100%);
+  }`;
   let my_css = document.styleSheets.item(document.styleSheets.length - 1);
   my_css.insertRule(bg_fst, my_css.cssRules.length);
   my_css.insertRule(bg_snd, my_css.cssRules.length);
   my_css.insertRule(bg_com, my_css.cssRules.length);
   my_css.insertRule(bg_mix, my_css.cssRules.length);
+  my_css.insertRule(bg_goal_fst, my_css.cssRules.length);
+  my_css.insertRule(bg_goal_snd, my_css.cssRules.length);
   colrs.forEach((c, i) => {
     let n = (i + 1).toString();
     n = n.replace("10","a").replace("11","b").replace("12","c");
@@ -54,6 +64,23 @@ function add_colrs() {
     my_css.insertRule(bg_snd_n(c, n), my_css.cssRules.length);
     my_css.insertRule(bg_mix_n(c, n), my_css.cssRules.length);
   });
+};
+
+function add_mix(n, m) {
+  n_ix = parseInt(
+           n.replace("a","10").replace("b","11").replace("c","12")
+         ) - 1;
+  m_ix = parseInt(
+           m.replace("a","10").replace("b","11").replace("c","12")
+         ) - 1;
+  rule = `.bg_${n}_${m} {
+    background-image: linear-gradient(to bottom right,
+      ${colrs[n_ix]} 0%, ${colrs[n_ix]} 50%,
+      ${colrs[m_ix]} 50%, ${colrs[m_ix]} 100%);
+  }`;
+
+  let my_css = document.styleSheets.item(document.styleSheets.length - 1);
+  my_css.insertRule(rule, my_css.cssRules.length);
 };
 
 function table_show( target_sel) {
@@ -177,7 +204,7 @@ let last_target_sel = '';
 let last_bg = {};
 
 function bg_show(target_sel, bg, show=true) {
-  if (! target_sel || ! bg) {return;};
+  if (! target_sel || ! bg || show === null) {return};
 
   if (show) {
     bg_show(last_target_sel, last_bg, false);
@@ -213,25 +240,65 @@ function obj_to_str (obj) {
 let last_btn = undefined;
 
 function btn_toggle (btn, ev) {
+  if (ev != 'click' && last_btn !== undefined) {return null};
   if (ev == 'click') {
-    if (last_btn && last_btn != btn &&
-        last_btn.classList.contains('active')
-    ) {
+    if (last_btn && last_btn != btn
+          && last_btn.classList.contains('active')) {
       last_btn.classList.toggle('active');
     };
+    last_btn = btn.classList.contains('active') ? undefined : btn;
     btn.classList.toggle('active');
-    last_btn = btn;
   };
   return btn.classList.contains('active') || ev == 'enter';
+};
+
+function make_btns (cap, btn_bg) {
+  btn_form = new RegExp(`<btns_(\\w+)\\s+(\\w+)>(.*?)<\/>`, "i");
+  cap_new = "";
+  while (cap) {
+    pos = cap.search(btn_form);
+    if (pos == -1) {break};
+    cap_new += cap.slice(0, pos);
+    cap = cap.slice(pos);
+
+    m = cap.match(btn_form); /* 1:tag name 2:color 3:text*/
+    m[1] = "btn_" + m[1];
+    m[3] = m[3].trim();
+    if (btn_bg[m[1]]) {
+      bgs = btn_bg[m[1]];
+      bgs_len = bgs.length;
+      bg_sum = {};
+      txts = (m[3].length == 0 ? "S|&gt;|E" : m[3]).split("|");
+      switch(txts.length) {
+        case 1: txts = [m[3], "&gt", "E"]; break;
+        case 2: txts.splice(1, 0, "&gt;"); break;
+        default: break;
+      }; /* txts: [start, middle, end] */
+      txt = n => n == 0 ? txts[0] : n == bgs_len - 1 ? txts[2] : txts[1];
+      Array.from(bgs).forEach((bg, n) => {
+        b_txt = "txt" in bg ? bg["txt"] : txt(n);
+        cap_new += `<${m[1]}_${n} ${m[2]}>${b_txt}</>`;
+        if ("init" in bg) {bg_sum = bgs[0]};
+        bg_sum = {...bg_sum, ...bg};
+        btn_bg[`${m[1]}_${n}`] = bg_sum;
+      });
+    };
+
+    pos = cap.search(/<\/>/);
+    cap = cap.slice(pos + 3);
+  }
+  return [cap_new + cap, btn_bg];
 };
 
 function cap_show(target_sel, btn_bg={}, cap, cap_div=undefined) {
   /* default if undefined is passed */
   if (! cap) {return;};
 
+  [cap, btn_bg] = make_btns(cap, btn_bg);
+
   Object.entries(btn_bg).map(([k, v]) => {
     cap = cap.replaceAll(
-      new RegExp(`<${k}\\s+(\\w+)>(.*?)<\/>`, "g"),
+      new RegExp(`<${k}\\s+(\\w+)>(.*?)<\/>`, "gi"),
       `<button class="btn bg_$1"
          onmouseover="javascript:bg_show(\'${target_sel}\', ${obj_to_str(v)}, btn_toggle(this,\'enter\'));"
          onmouseout="javascript:bg_show(\'${target_sel}\', ${obj_to_str(v)}, btn_toggle(this,\'leave\'));"
@@ -241,6 +308,7 @@ function cap_show(target_sel, btn_bg={}, cap, cap_div=undefined) {
   });
   cap = cap.replace(/<(fst|snd|com|bg_.*?)>/g, "<span class=\"$1\">");
   cap = cap.replace(/<\/(fst|snd|com|bg_.*?)?>/g, "</span>");
+  cap = cap.replace(/<_br>/g, "<span class=\"br\">&emsp;</span>");
 
   if (cap_div === undefined) {cap_div = get_cap_div(target_sel);};
   cap_div.innerHTML = cap;
