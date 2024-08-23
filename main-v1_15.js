@@ -1,4 +1,4 @@
-/* v1_14 */
+/* v1_s2 v1_15 */
 
 let colrs = [ /* Pale tone */
   "#F5B090", "#FCD7A1", "#FFF9B1", "#D7E7AF", "#A5D4AD", "#A2D7D4",
@@ -262,7 +262,7 @@ function make_btns (cap, btn_bg) {
     cap = cap.slice(pos);
 
     m = cap.match(btn_form); /* 1:tag name 2:color 3:text*/
-    m[1] = "btn_" + m[1];
+    m[1] = "btns_" + m[1];
     m[3] = m[3].trim();
     if (btn_bg[m[1]]) {
       bgs = btn_bg[m[1]];
@@ -279,6 +279,7 @@ function make_btns (cap, btn_bg) {
         b_txt = "txt" in bg ? bg["txt"] : txt(n);
         cap_new += `<${m[1]}_${n} ${m[2]}>${b_txt}</>`;
         if ("init" in bg) {bg_sum = bgs[0]};
+        bg_sum = rm_dup(bg_sum, bg);
         bg_sum = {...bg_sum, ...bg};
         btn_bg[`${m[1]}_${n}`] = bg_sum;
       });
@@ -330,6 +331,30 @@ function to_ixs (rc_str) {
   };
   return ixs;
 }
+
+function rm_dup (bg_sum, bg) {
+  let ixs_form = get_cell_form() + "?(r\\d+c\\d+)";
+
+  let rc_elim = [];
+  Object.entries(bg).map(([key, rc_str]) => {
+    let rc_arr = rc_str.match(new RegExp(ixs_form, "gi"));
+    rc_arr = (rc_arr ? rc_arr : []).map(
+      rc => rc.replace(new RegExp(ixs_form, "gi"), "$1")
+    );
+    rc_elim = rc_elim.concat(rc_arr.map(
+      rc => new RegExp(`${get_cell_form()}?${rc}`, "gi")
+    ));
+  });
+
+  let bg_sum_new = {};
+  let bg_sum_arr = Object.entries(bg_sum);
+  bg_sum_arr.forEach(([k, v]) => {
+    rc_elim.forEach(e => v = v.replace(e, ""));
+    bg_sum_new[k] = v;
+  });
+
+  return bg_sum_new;
+};
 
 function q_str (q, sep = "") {
   if (! q) {return null};
