@@ -1,4 +1,4 @@
-/* v1_s2 v1_15 */
+/* v1_s3 v1_16 */
 
 let colrs = [ /* Pale tone */
   "#F5B090", "#FCD7A1", "#FFF9B1", "#D7E7AF", "#A5D4AD", "#A2D7D4",
@@ -268,10 +268,10 @@ function make_btns (cap, btn_bg) {
       bgs = btn_bg[m[1]];
       bgs_len = bgs.length;
       bg_sum = {};
-      txts = (m[3].length == 0 ? "S|&gt;|E" : m[3]).split("|");
+      txts = (m[3].length == 0 ? "S|.|E" : m[3]).split("|");
       switch(txts.length) {
-        case 1: txts = [m[3], "&gt", "E"]; break;
-        case 2: txts.splice(1, 0, "&gt;"); break;
+        case 1: txts = [m[3], ".", "E"]; break;
+        case 2: txts.splice(1, 0, "."); break;
         default: break;
       }; /* txts: [start, middle, end] */
       txt = n => n == 0 ? txts[0] : n == bgs_len - 1 ? txts[2] : txts[1];
