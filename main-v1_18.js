@@ -1,4 +1,4 @@
-/* v1_s3 v1_16 */
+/* v1_s4 v1_18 */
 
 let colrs = [ /* Pale tone */
   "#F5B090", "#FCD7A1", "#FFF9B1", "#D7E7AF", "#A5D4AD", "#A2D7D4",
@@ -200,16 +200,18 @@ function q_show(target_sel, q) {
   tds.forEach(td => td.style.padding = "0px");
 };
 
-let last_target_sel = '';
-let last_bg = {};
+let last_target_sels = {};
+let last_bgs = {};
 
 function bg_show(target_sel, bg, show=true) {
   if (! target_sel || ! bg || show === null) {return};
 
   if (show) {
+    last_target_sel = last_target_sels[target_sel];
+    last_bg = last_bgs[target_sel];
     bg_show(last_target_sel, last_bg, false);
-    last_target_sel = target_sel;
-    last_bg = structuredClone(bg);
+    last_target_sels[target_sel] = target_sel;
+    last_bgs[target_sel] = structuredClone(bg);
   };
 
   let target = get_target(target_sel);
@@ -237,16 +239,17 @@ function obj_to_str (obj) {
   ].join("");
 }
 
-let last_btn = undefined;
+let last_btns = {};
 
-function btn_toggle (btn, ev) {
+function btn_toggle (btn, ev, target_sel) {
+  last_btn = last_btns[target_sel];
   if (ev != 'click' && last_btn !== undefined) {return null};
   if (ev == 'click') {
     if (last_btn && last_btn != btn
           && last_btn.classList.contains('active')) {
       last_btn.classList.toggle('active');
     };
-    last_btn = btn.classList.contains('active') ? undefined : btn;
+    last_btns[target_sel] = btn.classList.contains('active') ? undefined : btn;
     btn.classList.toggle('active');
   };
   return btn.classList.contains('active') || ev == 'enter';
@@ -301,9 +304,9 @@ function cap_show(target_sel, btn_bg={}, cap, cap_div=undefined) {
     cap = cap.replaceAll(
       new RegExp(`<${k}\\s+(\\w+)>(.*?)<\/>`, "gi"),
       `<button class="btn bg_$1"
-         onmouseover="javascript:bg_show(\'${target_sel}\', ${obj_to_str(v)}, btn_toggle(this,\'enter\'));"
-         onmouseout="javascript:bg_show(\'${target_sel}\', ${obj_to_str(v)}, btn_toggle(this,\'leave\'));"
-         onClick="javascript:bg_show(\'${target_sel}\', ${obj_to_str(v)}, btn_toggle(this,\'click\'));"
+         onmouseover="javascript:bg_show(\'${target_sel}\',${obj_to_str(v)},btn_toggle(this,\'enter\',\'${target_sel}\'));"
+         onmouseout="javascript:bg_show(\'${target_sel}\',${obj_to_str(v)},btn_toggle(this,\'leave\',\'${target_sel}\'));"
+         onClick="javascript:bg_show(\'${target_sel}\',${obj_to_str(v)},btn_toggle(this,\'click\',\'${target_sel}\'));"
        >$2</button>`
     );
   });
